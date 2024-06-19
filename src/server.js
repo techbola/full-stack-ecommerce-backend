@@ -1,4 +1,6 @@
 import express from "express";
+import { MongoClient } from "mongodb";
+
 import {
   cartItems as cartItemsRaw,
   products as productsRaw,
@@ -8,19 +10,32 @@ import {
 let cartItems = cartItemsRaw;
 let products = productsRaw;
 
+const url = `mongodb+srv://techbolaf:bi23VitzFnwdJVDi@cluster0.yn3tllk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+const client = new MongoClient(url);
+
 const app = express();
 app.use(express.json());
 
-function populateCartIds(ids) {
-  return ids.map((id) => products.find((product) => product.id === id));
+async function populateCartIds(ids) {
+  await client.connect();
+  const db = client.db("fsv-db");
+  return Promise.all(
+    ids.map((id) => db.collection("products").findOne({ id }))
+  );
 }
 
-app.get("/products", (req, res) => {
+app.get("/products", async (req, res) => {
+  await client.connect();
+  const db = client.db("fsv-db");
+  const products = await db.collection("products").find({}).toArray();
   res.json(products);
 });
 
-app.get("/cart", (req, res) => {
-  const populatedCartItems = populateCartIds(cartItems);
+app.get("/users/:userId/cart", async (req, res) => {
+  await client.connect();
+  const db = client.db("fsv-db");
+  const user = await db.collection("users").findOne({ id: req.params.userId });
+  const populatedCartItems = await populateCartIds(user.cartItems);
   res.json(populatedCartItems);
 });
 
