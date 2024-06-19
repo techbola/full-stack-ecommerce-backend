@@ -11,12 +11,17 @@ let products = productsRaw;
 const app = express();
 app.use(express.json());
 
+function populateCartIds(ids) {
+  return ids.map((id) => products.find((product) => product.id === id));
+}
+
 app.get("/products", (req, res) => {
   res.json(products);
 });
 
 app.get("/cart", (req, res) => {
-  res.json(cartItems);
+  const populatedCartItems = populateCartIds(cartItems);
+  res.json(populatedCartItems);
 });
 
 app.get("/products/:productId", (req, res) => {
@@ -27,15 +32,21 @@ app.get("/products/:productId", (req, res) => {
 
 app.post("/cart", (req, res) => {
   const productId = req.body.id;
-  const product = products.find((product) => product.id === productId);
-  cartItems.push(product);
-  res.json(cartItems);
+  if (!productId) {
+    return res
+      .status(400)
+      .json({ error: "Missing product id in request body" });
+  }
+  cartItems.push(productId);
+  const populatedCartItems = populateCartIds(cartItems);
+  res.json(populatedCartItems);
 });
 
 app.delete("/cart/:productId", (req, res) => {
   const productId = req.params.productId;
-  cartItems = cartItems.filter((product) => product.id !== productId);
-  res.json(cartItems);
+  cartItems = cartItems.filter((id) => id !== productId);
+  const populatedCartItems = populateCartIds(cartItems);
+  res.json(populatedCartItems);
 });
 
 app.listen(8000, () => {
