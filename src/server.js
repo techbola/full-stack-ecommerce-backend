@@ -1,15 +1,6 @@
 import express from "express";
 import { MongoClient } from "mongodb";
 
-// import {
-//   cartItems as cartItemsRaw,
-//   products as productsRaw,
-// } from "./temp-data";
-
-// so we can modify the external data
-// let cartItems = cartItemsRaw;
-// let products = productsRaw;
-
 async function start() {
   const url = `mongodb+srv://techbolaf:bi23VitzFnwdJVDi@cluster0.yn3tllk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
   const client = new MongoClient(url);
