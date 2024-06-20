@@ -1,9 +1,10 @@
 import express from "express";
+import "dotenv/config";
 import { MongoClient } from "mongodb";
 import path from "path";
 
 async function start() {
-  const url = `mongodb+srv://techbolaf:bi23VitzFnwdJVDi@cluster0.yn3tllk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+  const url = process.env.MONGO_DB_URL;
   const client = new MongoClient(url);
 
   await client.connect();
