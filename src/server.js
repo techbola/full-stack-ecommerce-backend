@@ -15,6 +15,14 @@ async function start() {
 
   app.use("/images", express.static(path.join(__dirname, "../assets")));
 
+  // serve static files (FE)
+  app.use(
+    express.static(path.resolve(__dirname, "../dist"), {
+      maxAge: "1y",
+      etag: false,
+    })
+  );
+
   async function populateCartIds(ids) {
     if (!ids) return [];
     return Promise.all(
@@ -96,6 +104,11 @@ async function start() {
 
     const populatedCartItems = await populateCartIds(user?.cartItems);
     res.json(populatedCartItems);
+  });
+
+  // serve static files (FE) for requests that are not handled by express
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../dist/index.html"));
   });
 
   const port = process.env.PORT || 8000;
