@@ -22,11 +22,13 @@ async function start() {
     );
   }
 
+  // get all products
   app.get("/api/products", async (req, res) => {
     const products = await db.collection("products").find({}).toArray();
     res.json(products);
   });
 
+  // get cart items for user
   app.get("/api/users/:userId/cart", async (req, res) => {
     const user = await db
       .collection("users")
@@ -35,12 +37,14 @@ async function start() {
     res.json(populatedCartItems);
   });
 
+  // get single product
   app.get("/api/products/:productId", async (req, res) => {
     const productId = req.params.productId;
     const product = await db.collection("products").findOne({ id: productId });
     res.json(product);
   });
 
+  // add items to cart for user
   app.post("/api/users/:userId/cart", async (req, res) => {
     const productId = req.body.id;
     const userId = req.params.userId;
@@ -70,6 +74,7 @@ async function start() {
     res.json(populatedCartItems);
   });
 
+  // remove items from cart
   app.delete("/api/users/:userId/cart/:productId", async (req, res) => {
     const productId = req.params.productId;
     const userId = req.params.userId;
