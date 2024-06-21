@@ -16,8 +16,9 @@ async function start() {
   app.use("/images", express.static(path.join(__dirname, "../assets")));
 
   async function populateCartIds(ids) {
+    if (!ids) return [];
     return Promise.all(
-      ids.map((id) => db.collection("products").findOne({ id }))
+      ids?.map((id) => db.collection("products").findOne({ id }))
     );
   }
 
@@ -30,7 +31,7 @@ async function start() {
     const user = await db
       .collection("users")
       .findOne({ id: req.params.userId });
-    const populatedCartItems = await populateCartIds(user.cartItems);
+    const populatedCartItems = await populateCartIds(user?.cartItems);
     res.json(populatedCartItems);
   });
 
@@ -50,6 +51,12 @@ async function start() {
         .json({ error: "Missing product id in request body" });
     }
 
+    const existingUser = await db.collection("users").findOne({ id: userId });
+
+    if (!existingUser) {
+      await db.collection("users").insertOne({ id: userId, cartItems: [] });
+    }
+
     await db.collection("users").updateOne(
       { id: userId },
       {
@@ -59,7 +66,7 @@ async function start() {
 
     const user = await db.collection("users").findOne({ id: userId });
 
-    const populatedCartItems = await populateCartIds(user.cartItems);
+    const populatedCartItems = await populateCartIds(user?.cartItems);
     res.json(populatedCartItems);
   });
 
@@ -82,7 +89,7 @@ async function start() {
 
     const user = await db.collection("users").findOne({ id: userId });
 
-    const populatedCartItems = await populateCartIds(user.cartItems);
+    const populatedCartItems = await populateCartIds(user?.cartItems);
     res.json(populatedCartItems);
   });
 
